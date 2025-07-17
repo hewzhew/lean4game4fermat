@@ -1,0 +1,40 @@
+vscode:
+  extensions:
+    - leanprover.lean4
+
+tasks:
+  - name: Setup & Run Game
+    init: |
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      nvm install 22.2.0
+      nvm use 22.2.0
+      
+      curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+      source "$HOME/.elan/env"
+      echo 'export PATH="$HOME/.elan/bin:$PATH"' >> ~/.bashrc
+      
+      echo "Building FermatGame library..."
+      cd games/FermatGame
+      lake update
+      lake exe cache get || true
+      lake build
+      
+      echo "Installing lean4game dependencies..."
+      cd ../..  # Go back to root /workspace/lean4game
+      npm install
+
+    command: |
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      nvm use 22.2.0
+      source "$HOME/.elan/env"
+      
+      echo "Starting the game server..."
+      npm start
+
+ports:
+  - port: 3000
+    onOpen: open-browser
+    name: Game Launcher
