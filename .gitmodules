@@ -1,0 +1,3 @@
+[submodule "games/FermatGame"]
+	path = games/FermatGame
+	url = https://github.com/hewzhew/FermatGame.git
