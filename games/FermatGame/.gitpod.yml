@@ -1,0 +1,44 @@
+vscode:
+  extensions:
+    - leanprover.lean4
+
+tasks:
+  - name: Setup & Run FermatGame
+    init: |
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      nvm install 22.2.0
+      nvm use 22.2.0
+      
+      curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+      source "$HOME/.elan/env"
+      
+      cd /workspace/FermatGame
+      lake update
+      lake exe cache get || true
+      lake build
+
+      git clone https://github.com/leanprover-community/lean4game.git /workspace/lean4game
+      cd /workspace/lean4game
+      npm install
+
+    command: |
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      nvm use 22.2.0
+      source "$HOME/.elan/env"
+      
+      cd /workspace/lean4game
+      npm start
+
+ports:
+  - port: 3000
+    onOpen: open-preview
+    name: FermatGame
+    description: Access the game frontend here
+
+  - port: 8080
+    onOpen: ignore
+    name: Backend Server
+    description: The Lean language server backend
