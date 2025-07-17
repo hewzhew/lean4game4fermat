@@ -36,6 +36,7 @@ export default defineConfig({
     exclude: ['games']
   },
   server: {
+    allowedHosts: ['.gitpod.io'],
     port: Number(clientPort),
     proxy: {
       '/websocket': {
