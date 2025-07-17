@@ -6,26 +6,33 @@ tasks:
   - name: Setup & Run Game
     init: |
       set -e
+      echo "--- Step 1: Setting up NVM and Node.js ---"
       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-      echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
-      echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
-      echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> ~/.bashrc
       export NVM_DIR="$HOME/.nvm"
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
       nvm install 22.2.0
+      nvm use 22.2.0
+
+      echo "--- Step 2: Setting up Lean (elan) ---"
       curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
       source "$HOME/.elan/env"
-      git submodule update --init --recursive
       export PATH="$HOME/.elan/bin:$PATH"
+
+      # 我们已经决定不用 submodule 了，所以这行可以删掉
+      # echo "--- Step 3: Initializing Git submodules ---"
+      # git submodule update --init --recursive
+
+      echo "--- Step 4: Building FermatGame library ---"
       cd games/FermatGame
       lake update
       lake exe cache get || true
       lake build
+
+      echo "--- Step 5: Installing server dependencies ---"
       cd ../..
       npm install
-    command: |
-      source ~/.bashrc
-      nvm use 22.2.0
+
+      echo "--- Step 6: All installations complete. Starting server... ---"
       npm start
 
 ports:
@@ -33,6 +40,7 @@ ports:
     onOpen: open-preview
     name: FermatGame
     description: Access the game frontend here
+
   - port: 8080
     onOpen: ignore
     name: Backend Server
